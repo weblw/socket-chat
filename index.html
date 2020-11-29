@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <div id="app">
+    <ul class="pages">
+      <li class="chat page">
+        <div class="chatArea">
+          <ul class="messages">
+            <li v-for="msg in messages">{{ msg }}</li>
+          </ul>
+        </div>
+        <form action="" class="send-form" style="bottom: 70px;">
+          <input v-model="nickName" placeholder="nickname..."  class="inputMessage" />
+          <button class="sendNickName" @click.prevent="sendNickName">send</button>
+        </form>
+        <form action="" class="send-form">
+          <input v-model="message" placeholder="message..."  class="inputMessage" />
+          <input v-model="userName" placeholder="user..."  class="inputMessage" />
+          <button class="sendMessage" @click.prevent="sendMessage">send</button>
+        </form>
+      </li>
+    </ul>
+  </div>
+  <script src="/socket.io.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.min.js"></script>
+  <script>
+    const socket = io();
+    const app = new Vue({
+      data: {
+        messages: ['nihao'],
+        nickName: '',
+        userName: '',
+        message: ''
+      },
+      created () {
+        socket.on('private', data => {
+          console.log(data)
+          this.messages.push(`${data.nickName}说：${data.data}`)
+        })
+      },
+      methods: {
+        sendNickName () {
+          socket.emit('nickName', this.nickName)
+        },
+        sendMessage () {
+          socket.emit('message', {
+            userName: this.userName,
+            message: this.messages
+          })
+        }
+      }
+    })
+    app.$mount('#app')
+  </script>
+</body>
+</html>
